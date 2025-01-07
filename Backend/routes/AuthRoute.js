@@ -1,0 +1,16 @@
+import express, { Router } from 'express';
+import { createManager, createRestaurant, getManagers, getRestaurants, register} from '../controllers/Auth.js';
+import { login } from '../controllers/Auth.js';
+import { logout } from '../controllers/Auth.js';
+import { CreateAddress, getAddress } from '../controllers/Address.js';
+const Authroute = express.Router();
+Authroute.post("/register",register);
+Authroute.post("/login",login);
+Authroute.post("/logout",logout);
+Authroute.post("/manager",createManager);
+Authroute.post("/restaurant",createRestaurant);
+Authroute.get("/getmanagers",getManagers);
+Authroute.get("/getrestaurants",getRestaurants);
+Authroute.post("/address",CreateAddress);
+Authroute.get("/getaddress",getAddress);
+export default Authroute;

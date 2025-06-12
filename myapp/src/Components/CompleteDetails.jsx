@@ -14,7 +14,7 @@ function CompleteDetailsAndCheckout() {
         const response = await axios.get(
           "http://localhost:4000/api/auth/getaddress"
         );
-        console.log("API Response:", response.data); // Debugging response structure
+        console.log("API Response:", response.data); 
 
         if (response.data.success) {
           toast.success("Please Welcome");
@@ -104,9 +104,11 @@ function CompleteDetailsAndCheckout() {
                 <p className="text-lg font-semibold">₹{totalAmount.toFixed(2)}</p>
               </div>
               <div className="flex justify-between gap-4 mt-6">
-                <button className="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition duration-300">
+                <Link 
+                to="/confirmorder" 
+                className="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition duration-300">
                   Confirm Payment
-                </button>
+                </Link>
                 <Link
                   to="/address"
                   className="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition duration-300"

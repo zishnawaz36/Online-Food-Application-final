@@ -45,13 +45,15 @@ const login = async (req, res) => {
             return res.status(401).json({ message: "Invalid credentials", success: false });
         }
 
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+       
 
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: false,
-            maxAge: 3600000,
-        });
+       
+    const token = jwt.sign(
+      { id: usercheck._id, role: usercheck.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
 
         res.status(200).json({ message: "Login successful", success: true, user, token });
     } catch (err) {

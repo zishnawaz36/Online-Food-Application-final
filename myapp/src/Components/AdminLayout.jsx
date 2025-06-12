@@ -41,7 +41,7 @@ function AdminLayout() {
 
     const handleDeleteUser = async (id) => {
         try {
-            const response = await axios.delete(`http://localhost:4000/api/admin/delete/${id}`);
+            const response = await axios.delete(`http://localhost:4000/api/admin/user/delete/${id}`);
             toast.success(response.data.message);
             setUsers(users.filter(user => user._id !== id)); // Remove deleted user
             console.log("Response api is",response.data);        

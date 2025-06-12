@@ -3,8 +3,9 @@ import { Toaster } from "react-hot-toast";
 import React, { Suspense, lazy } from "react";
 import MainContainerLayout from "./Components/Admin/MainContainer";
 import CompleteAddress from "./Components/Address";
-
+import ConfirmOrder from "./Components/ConfirmOrder";
 // Lazy loading components
+
 const Admin = lazy(() => import("./Components/AdminLayout"));
 const Manager = lazy(() => import("./Components/Manager"));
 const MainBody = lazy(() => import("./Components/MainBody"));
@@ -17,7 +18,8 @@ const Cart = lazy(() => import("./Components/Cart"));
 const Details = lazy(() => import("./Components/Admin/Details"));
 const Checkout = lazy(() => import("./Components/MyCheckout"));
 const Address = lazy(() => import("./Components/Address"));
-const Complete = lazy(() =>import("./Components/Address"))
+//const Complete = lazy(() =>import("./Components/Address"))
+const Complete = lazy(() =>import("./Components/CompleteDetails"));
 function App() {
   const token = localStorage.getItem("token");
 
@@ -27,7 +29,8 @@ function App() {
       <Suspense fallback={<div>Loading...</div>}>
       
         <Routes>
-          {/* Public Routes */}   
+          {/* Public Routes */}  
+          <Route path="/confirmorder" element={<ConfirmOrder/>}/> 
           <Route path="/completeDetails"element={<Complete/>} />      
           <Route path="/checkout" element={<Checkout/>}></Route>
           <Route  path="/address" element={<CompleteAddress/>} />
@@ -48,6 +51,7 @@ function App() {
           {/* Protected Routes */}
           {token && (
             <Route element={<ProtectedRoute token={token} />}>
+              
               <Route path="/mainBody" element={<MainBody />} />
               <Route path="/toprated" element={<DeliveryRestro />} />
               <Route path="/restaurant/:resid" element={<RestaurantMenu />} />

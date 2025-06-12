@@ -8,5 +8,5 @@ const AdminRoute = express.Router();
 //if admin then get all data 
 AdminRoute.get("/getuser",GetUser);
 AdminRoute.delete("/delete/:id",deleteManager);
-AdminRoute.delete("/delete/:id",deleteUser);
+AdminRoute.delete("/user/delete/:id",deleteUser);
 export default AdminRoute;

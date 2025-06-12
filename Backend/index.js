@@ -11,11 +11,15 @@ await connectDB();
 
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(cors({
+  origin: 'http://localhost:3001', 
+  credentials: true
+}));
+
 
 app.use(cookieParser());
 
-const PORT = process.env.PORT || 4003;
+const PORT = process.env.PORT || 4000;
 
 app.use("/api/auth", Authroute);
 app.use("/api/admin", AdminRoute);

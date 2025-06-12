@@ -7,7 +7,7 @@ const Authroute = express.Router();
 Authroute.post("/register",register);
 Authroute.post("/login",login);
 Authroute.post("/logout",logout);
-Authroute.post("/manager",createManager);
+Authroute.post("/manager", verifyToken, roleBased("manager"), createManager);
 Authroute.post("/restaurant",createRestaurant);
 Authroute.get("/getmanagers",getManagers);
 Authroute.get("/getrestaurants",getRestaurants);

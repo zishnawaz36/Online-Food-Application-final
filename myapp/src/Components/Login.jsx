@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { setUser } from "./Utilis/AuthSlice";
 import { useDispatch } from "react-redux";
+import axios from "axios";
+
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,25 +15,32 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:4000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      const response = await axios.post("http://localhost:4001/api/auth/login", {
+        email,
+        password
       });
 
-      const data = await response.json();
+      const data = response.data;
 
       if (data.token) {
-        toast.success("Login successful!");
+        // Save token to localStorage
         localStorage.setItem("token", data.token);
-        if(data.user.role!=="admin"){
-          navigate("/admin");
-        }
-        else if(data.user.role ==='user'){
-          navigate('/maincontainer')
-        }
+
+        toast.success("Login successful!");
+
+        // Redux me user ko set karo (optional agar aapka AuthSlice me structure same hai)
         dispatch(setUser(data.user));
-        navigate("/mainBody");
+
+        // Role-based navigation
+        if (data.user.role === "admin") {
+          navigate("/admin");
+        } else if (data.user.role === "user") {
+          navigate("/maincontainer");
+        } else if (data.user.role === "manager") {
+          navigate("/manager");
+        } else {
+          navigate("/dashboard");  // default fallback
+        }
       } else {
         toast.error(data.message || "Login failed");
       }

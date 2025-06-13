@@ -5,29 +5,28 @@ import { toast } from "react-hot-toast";
 
 function Signup() {
     const navigate = useNavigate();
-    const [username, setName] = useState('');
+    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [optionRole, setOptionRole] = useState('');
 
     // Role options
     const options = [
-        { label: "Admin", path: "/admin" },
-        { label: "Manager", path: "/manager" },
-        { label: "User", path: "/login" }
+        { label: "Admin", value: "admin" },
+        { label: "Manager", value: "manager" },
+        { label: "User", value: "user" }
     ];
 
     // Handle role selection
     const handleOptions = (e) => {
-        const updatedRole = e.target.value;
-        setOptionRole(updatedRole);
-        navigate(updatedRole);
+        setOptionRole(e.target.value);
     };
 
     // Handle user registration
     const userHandler = async (e) => {
         e.preventDefault();
-        if (!username || !email || !password) {
+
+        if (!username || !email || !password || !optionRole) {
             toast.error("All fields are required!");
             return;
         }
@@ -36,7 +35,8 @@ function Signup() {
             const response = await axios.post("http://localhost:4000/api/auth/register", {
                 username,
                 email,
-                password
+                password,
+                role: optionRole    // role bhi bhejna hoga backend ko
             });
 
             if (response.data.message === "User registered successfully") {
@@ -54,28 +54,20 @@ function Signup() {
     return (
         <div className="bg-gray-800 w-full h-screen flex justify-center items-center">
             <div className="h-auto w-[90%] max-w-[500px] shadow-lg flex flex-col items-center rounded-xl bg-white text-black p-6">
-                {/* Header */}
                 <h1 className="text-3xl font-bold mb-8">Register</h1>
 
-                {/* Form */}
                 <form className="flex flex-col w-full" onSubmit={userHandler}>
-                    {/* Username Input */}
-                    <label htmlFor="name" className="mb-2 text-gray-600">
-                        Name
-                    </label>
+                    <label htmlFor="name" className="mb-2 text-gray-600">Name</label>
                     <input
                         type="text"
                         id="name"
                         className="mb-4 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400"
                         placeholder="Enter your name"
                         value={username}
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={(e) => setUsername(e.target.value)}
                     />
 
-                    {/* Email Input */}
-                    <label htmlFor="email" className="mb-2 text-gray-600">
-                        Email
-                    </label>
+                    <label htmlFor="email" className="mb-2 text-gray-600">Email</label>
                     <input
                         type="email"
                         id="email"
@@ -85,10 +77,7 @@ function Signup() {
                         onChange={(e) => setEmail(e.target.value)}
                     />
 
-                    {/* Password Input */}
-                    <label htmlFor="password" className="mb-2 text-gray-600">
-                        Password
-                    </label>
+                    <label htmlFor="password" className="mb-2 text-gray-600">Password</label>
                     <input
                         type="password"
                         id="password"
@@ -98,41 +87,30 @@ function Signup() {
                         onChange={(e) => setPassword(e.target.value)}
                     />
 
-                    {/* Submit Button */}
-                    <button
-                        type="submit"
-                        className="py-2 my-4 w-full bg-orange-400 text-white rounded-md hover:bg-orange-500 transition duration-300"
-                    >
+                    <label className="mb-2 text-gray-600">Select Role</label>
+                    <div className="flex justify-around mb-4">
+                        {options.map((option) => (
+                            <label key={option.value} className="text-orange-500">
+                                <input
+                                    type="radio"
+                                    value={option.value}
+                                    checked={optionRole === option.value}
+                                    onChange={handleOptions}
+                                    className="mr-1"
+                                />
+                                {option.label}
+                            </label>
+                        ))}
+                    </div>
+
+                    <button type="submit" className="py-2 my-4 w-full bg-orange-400 text-white rounded-md hover:bg-orange-500 transition duration-300">
                         Submit
                     </button>
                 </form>
 
-                {/* Role Selection */}
-                <div className="flex flex-wrap justify-center mb-6">
-                    {options.map((option) => (
-                        <label
-                            key={option.path}
-                            className="mx-2 text-orange-500 hover:underline transition-transform transform hover:scale-105"
-                        >
-                            <input
-                                type="radio"
-                                value={option.path}
-                                checked={optionRole === option.path}
-                                onChange={handleOptions}
-                                className="mr-1"
-                            />
-                            {option.label}
-                        </label>
-                    ))}
-                </div>
-
-                {/* Already Registered */}
                 <div className="flex justify-center items-center">
                     <p>Already have an account?</p>
-                    <Link
-                        to="/login"
-                        className="ml-2 text-orange-500 hover:underline hover:scale-105 transition-transform"
-                    >
+                    <Link to="/login" className="ml-2 text-orange-500 hover:underline hover:scale-105 transition-transform">
                         Login
                     </Link>
                 </div>

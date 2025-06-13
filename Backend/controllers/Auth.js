@@ -8,7 +8,8 @@ import UserModel from "../models/user.js";
 // Register new user
 const register = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        console.log("Data comming from backend check:",req.body);
+       const { username, email, password, role } = req.body;
 
         const existingUser = await UserModel.findOne({ email });
         if (existingUser) {
@@ -21,6 +22,7 @@ const register = async (req, res) => {
             username,
             email,
             password: hashPassword,
+            role
         });
 
         await newUser.save();
@@ -49,10 +51,11 @@ const login = async (req, res) => {
 
        
     const token = jwt.sign(
-      { id: usercheck._id, role: usercheck.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
+  { id: user._id, role: user.role },
+  process.env.JWT_SECRET,
+  { expiresIn: "1h" }
+);
+
 
 
         res.status(200).json({ message: "Login successful", success: true, user, token });

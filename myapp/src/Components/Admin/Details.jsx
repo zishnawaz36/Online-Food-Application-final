@@ -1,131 +1,95 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 function Details() {
-    const [allDetails, setAllDetails] = useState({ managers: [], restaurants: [] });
-    const [loading, setLoading] = useState(false);
+  const [managerDetail, setManagerDetail] = useState(null);
+  const [restaurantDetail, setRestaurantDetail] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-    const getData = async () => {
-        setLoading(true); // Show loading spinner
-        try {
-            // Fetch managers and restaurants concurrently
-            const [managersResponse, restaurantsResponse] = await Promise.all([
-                axios.get("http://localhost:4000/api/auth/getmanagers"),
-                axios.get("http://localhost:4000/api/auth/getrestaurants"),
-            ]);
+  const getData = async () => {
+    setLoading(true);
+    try {
+      const [managerRes, restaurantRes] = await Promise.all([
+        axios.get("http://localhost:4000/api/auth/getmanagers"),
+        axios.get("http://localhost:4000/api/auth/getrestaurants"),
+      ]);
 
-            console.log("Managers Data:", managersResponse.data);
-            console.log("Restaurants Data:", restaurantsResponse.data);
+      if (managerRes.data.success && restaurantRes.data.success) {
+        toast.success("Data fetched successfully!");
 
-            // Ensure you access the `data` property correctly
-            if (
-                managersResponse.data.success &&
-                restaurantsResponse.data.success
-            ) {
-                toast.success("Data fetched successfully!");
-                setAllDetails({
-                    managers: managersResponse.data.managers || [],
-                    restaurants: restaurantsResponse.data.restaurants || [],
-                });
-            } else {
-                toast.error("Failed to fetch data. Please check the API responses.");
-            }
-        } catch (error) {
-            console.error("Error fetching data:", error);
-            toast.error("Error fetching data. Please try again.");
-        } finally {
-            setLoading(false); // Hide loading spinner
-        }
-    };
+        // ✅ Sirf last manager ka data le rahe hain
+        const latestManager = managerRes.data.managers
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0] || null;
 
-    return (
-        <div className="h-screen w-full bg-gradient-to-b from-gray-100 to-gray-200 p-5">
-            <div className="max-w-6xl mx-auto">
-                {/* Header */}
-                <h1 className="text-4xl text-center font-bold text-gray-800 mb-10">
-                    Welcome to Our Partner Portal
-                </h1>
+        // ✅ Sirf last restaurant ka data le rahe hain
+        const latestRestaurant = restaurantRes.data.restaurants
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0] || null;
 
-                {/* Button to Fetch Data */}
-                <div className="flex text-center mb-10 ">
-                    <button
-                        onClick={getData}
-                        className={`px-8 py-3 rounded-lg text-white font-medium transition-all duration-300 ${
-                            loading
-                                ? "bg-gray-400 cursor-not-allowed"
-                                : "bg-gradient-to-r from-blue-500 to-blue-600 hover:scale-105"
-                        }`}
-                        disabled={loading}
-                    >
-                        {loading ? "Loading..." : "Fetch Data"}
-                    </button>
-                    <Link to="/admin"><button className="bg-blue-500 px-8 py-3 ml-5 rounded-lg text-white font-medium transition-all duration-300 ">Admin</button></Link>
-                </div>
+        setManagerDetail(latestManager);
+        setRestaurantDetail(latestRestaurant);
+      } else {
+        toast.error("Failed to fetch data.");
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error("Error fetching data.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                {/* Manager Details */}
-                <div className="mb-10">
-                    <h2 className="text-2xl font-semibold text-gray-700 mb-5">
-                        Manager Details
-                    </h2>
-                    {allDetails.managers.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {allDetails.managers.map((manager) => (
-                                <div
-                                    className="bg-white p-6 shadow-lg rounded-xl border border-gray-200 hover:shadow-xl transition-all duration-300"
-                                    key={manager._id}
-                                >
-                                    <p>
-                                        <strong>Name:</strong> {manager.Name}
-                                    </p>
-                                    <p>
-                                        <strong>Aadhaar Number:</strong> {manager.AdharNumber}
-                                    </p>
-                                    <p>
-                                        <strong>Phone Number:</strong> {manager.PhoneNumber}
-                                    </p>
-                                    <p>
-                                        <strong>PAN Number:</strong> {manager.PanNumber}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="text-gray-600">No managers found.</p>
-                    )}
-                </div>
+  useEffect(() => {
+    getData();
+  }, []);
 
-                {/* Restaurant Details */}
-                <div>
-                    <h2 className="text-2xl font-semibold text-gray-700 mb-5">
-                        Restaurant Details
-                    </h2>
-                    {allDetails.restaurants.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {allDetails.restaurants.map((restaurant) => (
-                                <div
-                                    className="bg-white p-6 shadow-lg rounded-xl border border-gray-200 hover:shadow-xl transition-all duration-300"
-                                    key={restaurant._id}
-                                >
-                                    <p>
-                                        <strong>Name:</strong> {restaurant.name}
-                                    </p>
-                                    <p>
-                                        <strong>Address:</strong> {restaurant.address}
-                                    </p>
-                                    <p>
-                                        <strong>Special For:</strong> {restaurant.specialfor}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="text-gray-600">No restaurants found.</p>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-100 via-blue-100 to-blue-200 p-5 flex flex-col items-center justify-center">
+      <div className="max-w-3xl w-full bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h1 className="text-4xl font-bold text-blue-700 mb-4 text-center">Welcome Manager 👋</h1>
+        <p className="text-gray-700 text-lg text-center">
+          Here are your latest submitted details.
+        </p>
+      </div>
+
+      {/* Manager Details */}
+      <div className="max-w-3xl w-full bg-white p-8 rounded-xl shadow-lg mb-10">
+        <h2 className="text-2xl font-semibold text-gray-700 mb-5 text-center">Manager Details</h2>
+        {managerDetail ? (
+          <div className="bg-blue-50 p-5 rounded-xl shadow border border-blue-200 hover:shadow-lg transition-all duration-300">
+            <p><strong>Name:</strong> {managerDetail.Name}</p>
+            <p><strong>Aadhaar:</strong> {managerDetail.AdharNumber}</p>
+            <p><strong>Phone:</strong> {managerDetail.PhoneNumber}</p>
+            <p><strong>PAN:</strong> {managerDetail.PanNumber}</p>
+          </div>
+        ) : (
+          <p className="text-gray-600 text-center">No manager data found.</p>
+        )}
+      </div>
+
+      {/* Restaurant Details */}
+      <div className="max-w-3xl w-full bg-white p-8 rounded-xl shadow-lg">
+        <h2 className="text-2xl font-semibold text-gray-700 mb-5 text-center">Restaurant Details</h2>
+        {restaurantDetail ? (
+          <div className="bg-blue-50 p-5 rounded-xl shadow border border-blue-200 hover:shadow-lg transition-all duration-300">
+            <p><strong>Name:</strong> {restaurantDetail.name}</p>
+            <p><strong>Address:</strong> {restaurantDetail.address}</p>
+            <p><strong>Special For:</strong> {restaurantDetail.specialfor}</p>
+          </div>
+        ) : (
+          <p className="text-gray-600 text-center">No restaurant data found.</p>
+        )}
+      </div>
+      
+<div className="mt-10">
+  <Link to="/manager">
+    <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+      Back to Manager Dashboard
+    </button>
+  </Link>
+</div>
+    </div>
+  );
 }
 
 export default Details;

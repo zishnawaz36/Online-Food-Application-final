@@ -6,6 +6,10 @@ import { CreateAddress, getAddress } from '../controllers/Address.js';
 import { admin } from '../controllers/Authpanel.js';
 import { manager } from '../controllers/Authpanel.js';
 import { user } from '../controllers/Authpanel.js';
+import verifyToken from "../Middleware/verifyToken.js";
+import roleBased from '../Middleware/roleBased.js';
+
+
 const Authroute = express.Router();
 Authroute.post("/register",register);
 Authroute.post("/login",login);

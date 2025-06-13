@@ -1,6 +1,6 @@
 import express from 'express';
 import { GetUser } from "../controllers/Admin.js"; //always write .js
-import { isAdmin } from '../Middleware/verifyToken.js';
+
 import { deleteUser } from '../controllers/Admin.js';
 import { deleteManager } from '../controllers/Admin.js';
 const AdminRoute = express.Router();

@@ -8,25 +8,13 @@ function Signup() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [optionRole, setOptionRole] = useState('');
-
-    // Role options
-    const options = [
-        { label: "Admin", value: "admin" },
-        { label: "Manager", value: "manager" },
-        { label: "User", value: "user" }
-    ];
-
-    // Handle role selection
-    const handleOptions = (e) => {
-        setOptionRole(e.target.value);
-    };
+    const [role, setRole] = useState('');  // input field se lenge
 
     // Handle user registration
     const userHandler = async (e) => {
         e.preventDefault();
 
-        if (!username || !email || !password || !optionRole) {
+        if (!username || !email || !password || !role) {
             toast.error("All fields are required!");
             return;
         }
@@ -36,7 +24,7 @@ function Signup() {
                 username,
                 email,
                 password,
-                role: optionRole    // role bhi bhejna hoga backend ko
+                role
             });
 
             if (response.data.message === "User registered successfully") {
@@ -44,6 +32,7 @@ function Signup() {
                 navigate("/login");
             } else {
                 toast.error(response.data.message || "Registration failed");
+                console.log("error:", response.data.message);
             }
         } catch (err) {
             console.error("Error connecting to server:", err.message);
@@ -87,21 +76,15 @@ function Signup() {
                         onChange={(e) => setPassword(e.target.value)}
                     />
 
-                    <label className="mb-2 text-gray-600">Select Role</label>
-                    <div className="flex justify-around mb-4">
-                        {options.map((option) => (
-                            <label key={option.value} className="text-orange-500">
-                                <input
-                                    type="radio"
-                                    value={option.value}
-                                    checked={optionRole === option.value}
-                                    onChange={handleOptions}
-                                    className="mr-1"
-                                />
-                                {option.label}
-                            </label>
-                        ))}
-                    </div>
+                    <label htmlFor="role" className="mb-2 text-gray-600">Role</label>
+                    <input
+                        type="text"
+                        id="role"
+                        className="mb-4 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400"
+                        placeholder="Enter role (admin, manager, user)"
+                        value={role}
+                        onChange={(e) => setRole(e.target.value)}
+                    />
 
                     <button type="submit" className="py-2 my-4 w-full bg-orange-400 text-white rounded-md hover:bg-orange-500 transition duration-300">
                         Submit

@@ -15,7 +15,7 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:4001/api/auth/login", {
+      const response = await axios.post("http://localhost:4000/api/auth/login", {
         email,
         password
       });
@@ -33,12 +33,14 @@ function Login() {
 
         // Role-based navigation
         if (data.user.role === "admin") {
-          navigate("/admin");
+          navigate("/onlyadmin");
         } else if (data.user.role === "user") {
-          navigate("/maincontainer");
+          navigate("/mainBody");
         } else if (data.user.role === "manager") {
           navigate("/manager");
-        } else {
+        }
+        
+        else {
           navigate("/dashboard");  // default fallback
         }
       } else {

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import CompletingManager from "./CompletingManager";
+
 const ManagerandRestaurent = () => {
     const navigate = useNavigate();
   const [formData, setFormData] = useState({

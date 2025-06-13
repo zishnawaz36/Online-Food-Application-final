@@ -34,10 +34,12 @@ const managerSchema = new mongoose.Schema({
                 return /^\d{10}$/.test(v); 
             },
             message: "Phone number must be 10 digits"
-        }
+        },
+        
     },
     
 });
+{timestamps:true}
 
 // Create the model
 const ManagerDetails = mongoose.model("ManagerDetails", managerSchema);

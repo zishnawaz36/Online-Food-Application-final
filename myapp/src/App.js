@@ -4,8 +4,10 @@ import React, { Suspense, lazy } from "react";
 import MainContainerLayout from "./Components/Admin/MainContainer";
 import CompleteAddress from "./Components/Address";
 import ConfirmOrder from "./Components/ConfirmOrder";
+import AdminDashboardComplete from "./Components/Admin/CompleteDetailsforAdmin.jsx";
 // Lazy loading components
 
+const AdminDashboard = lazy(() => import("./Components/Admin/CompleteDetailsforAdmin.jsx"));
 const Admin = lazy(() => import("./Components/AdminLayout"));
 const Manager = lazy(() => import("./Components/Manager"));
 const MainBody = lazy(() => import("./Components/MainBody"));
@@ -51,7 +53,7 @@ function App() {
           {/* Protected Routes */}
           {token && (
             <Route element={<ProtectedRoute token={token} />}>
-              
+              <Route path="/onlyadmin"element={<AdminDashboardComplete/>}/>
               <Route path="/mainBody" element={<MainBody />} />
               <Route path="/toprated" element={<DeliveryRestro />} />
               <Route path="/restaurant/:resid" element={<RestaurantMenu />} />

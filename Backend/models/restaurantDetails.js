@@ -1,3 +1,4 @@
+
 import mongoose from "mongoose";
 const restaurantSchema = new mongoose.Schema({
     name:{
@@ -16,6 +17,7 @@ const restaurantSchema = new mongoose.Schema({
         type:String,
         required:false
     }
-})
+},{ timestamps: true });
+
 const RestaurantDetails = mongoose.model("RestaurantDetails",restaurantSchema);
 export default RestaurantDetails;

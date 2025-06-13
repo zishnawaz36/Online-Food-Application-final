@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-import CompletingManager from "./CompletingManager";
+import { useNavigate, Link } from "react-router-dom";
 
 const ManagerandRestaurent = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     manager: {
       Name: "",
@@ -34,122 +33,92 @@ const ManagerandRestaurent = () => {
 
   const handleSubmit = async () => {
     try {
-      // API requests for both manager and restaurant
-      const managerResponse = await axios.post("http://localhost:4000/api/auth/manager", formData.manager);
-      const restaurantResponse = await axios.post("http://localhost:4000/api/auth/restaurant", {
-        ...formData.restaurant,
-        menu: formData.restaurant.menu.split(","), // Convert menu to array
-      });
+      const managerResponse = await axios.post(
+        "http://localhost:4000/api/auth/manager",
+        formData.manager
+      );
+      const restaurantResponse = await axios.post(
+        "http://localhost:4000/api/auth/restaurant",
+        {
+          ...formData.restaurant,
+          menu: formData.restaurant.menu.split(","),
+        }
+      );
 
-      // If both succeed, show success toast
-      if (managerResponse.status === 201 && restaurantResponse.status === 201) {
+      if (
+        managerResponse.status === 201 &&
+        restaurantResponse.status === 201
+      ) {
         toast.success("Manager and Restaurant successfully created!");
-        navigate("/details")
+        navigate("/details");
         setFormData({
-          manager: {
-            Name: "",
-            AdharNumber: "",
-            PanNumber: "",
-            PhoneNumber: "",
-          },
-          restaurant: {
-            name: "",
-            address: "",
-            menu: "",
-            specialfor: "",
-          },
+          manager: { Name: "", AdharNumber: "", PanNumber: "", PhoneNumber: "" },
+          restaurant: { name: "", address: "", menu: "", specialfor: "" },
         });
       }
     } catch (error) {
-      // Handle errors and show error toast
       toast.error("Error: " + (error.response?.data?.message || error.message));
-      console.log("error:",error.message);
+      console.log("error:", error.message);
     }
   };
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
-        <h1 className="text-3xl text-center font-bold text-black mb-10 animate-bounce">
-         Welcome & Please fill the details and become our partner
-        </h1>
-      <h2 className="text-2xl font-bold mb-4">Manager Details</h2>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <input
-          type="text"
-          name="Name"
-          placeholder="Manager Name"
-          value={formData.manager.Name}
-          onChange={(e) => handleChange(e, "manager")}
-          className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          name="AdharNumber"
-          placeholder="Adhar Number"
-          value={formData.manager.AdharNumber}
-          onChange={(e) => handleChange(e, "manager")}
-          className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          name="PanNumber"
-          placeholder="PAN Number"
-          value={formData.manager.PanNumber}
-          onChange={(e) => handleChange(e, "manager")}
-          className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          name="PhoneNumber"
-          placeholder="Phone Number"
-          value={formData.manager.PhoneNumber}
-          onChange={(e) => handleChange(e, "manager")}
-          className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-blue-100 p-8 flex flex-col items-center">
+      <h1 className="text-3xl text-center font-bold text-gray-800 mb-8 animate-pulse">
+        Welcome! Please submit your details to become our partner
+      </h1>
+
+      <div className="w-full max-w-xl bg-white rounded-xl shadow-lg p-6 mb-8">
+        <h2 className="text-xl font-semibold mb-4">Manager Details</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {["Name", "AdharNumber", "PanNumber", "PhoneNumber"].map((field) => (
+            <input
+              key={field}
+              type="text"
+              name={field}
+              placeholder={field}
+              value={formData.manager[field]}
+              onChange={(e) => handleChange(e, "manager")}
+              className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          ))}
+        </div>
       </div>
 
-      <h2 className="text-2xl font-bold mt-8 mb-4">Restaurant Details</h2>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <input
-          type="text"
-          name="name"
-          placeholder="Restaurant Name"
-          value={formData.restaurant.name}
-          onChange={(e) => handleChange(e, "restaurant")}
-          className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          name="address"
-          placeholder="Address"
-          value={formData.restaurant.address}
-          onChange={(e) => handleChange(e, "restaurant")}
-          className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          name="menu"
-          placeholder="Menu (comma-separated)"
-          value={formData.restaurant.menu}
-          onChange={(e) => handleChange(e, "restaurant")}
-          className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          name="specialfor"
-          placeholder="Special For"
-          value={formData.restaurant.specialfor}
-          onChange={(e) => handleChange(e, "restaurant")}
-          className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+      <div className="w-full max-w-xl bg-white rounded-xl shadow-lg p-6 mb-6">
+        <h2 className="text-xl font-semibold mb-4">Restaurant Details</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[
+            { name: "name", placeholder: "Restaurant Name" },
+            { name: "address", placeholder: "Address" },
+            { name: "menu", placeholder: "Menu (comma-separated)" },
+            { name: "specialfor", placeholder: "Special For" },
+          ].map((input) => (
+            <input
+              key={input.name}
+              type="text"
+              name={input.name}
+              placeholder={input.placeholder}
+              value={formData.restaurant[input.name]}
+              onChange={(e) => handleChange(e, "restaurant")}
+              className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          ))}
+        </div>
       </div>
 
       <button
         onClick={handleSubmit}
-        className="mt-6 w-full md:w-auto bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full max-w-xs bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors duration-300 mb-6 shadow-md"
       >
         Submit Details
       </button>
+
+      <Link to="/">
+        <button className="text-gray-700 hover:text-blue-600 underline">
+          ← Back to Home
+        </button>
+      </Link>
     </div>
   );
 };

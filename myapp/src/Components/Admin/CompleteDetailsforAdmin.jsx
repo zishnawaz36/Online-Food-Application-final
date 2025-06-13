@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 
-function AdminDashboardComplete() {
+function AdminDashboard() {
   const [allData, setAllData] = useState({
     users: [],
     managers: [],
@@ -46,6 +46,28 @@ function AdminDashboardComplete() {
     fetchAllData();
   }, []);
 
+  const handleDeleteManager = async (id) => {
+    try {
+      await axios.delete(`http://localhost:4000/api/admin/delete/${id}`);
+      toast.success("Manager deleted successfully");
+      fetchAllData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Error deleting manager");
+    }
+  };
+
+  const handleDeleteUser = async (id) => {
+    try {
+      await axios.delete(`http://localhost:4000/api/admin/user/delete/${id}`);
+      toast.success("User deleted successfully");
+      fetchAllData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Error deleting user");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-blue-50 to-blue-100 p-5">
       <div className="max-w-6xl mx-auto">
@@ -63,52 +85,32 @@ function AdminDashboardComplete() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
-
-          <div className="bg-white p-5 rounded-lg shadow-md border">
-            <h2 className="text-xl font-semibold text-blue-700 mb-2">Total Users</h2>
-            <p className="text-3xl text-center text-green-600">{allData.users.length}</p>
-          </div>
-
-          <div className="bg-white p-5 rounded-lg shadow-md border">
-            <h2 className="text-xl font-semibold text-blue-700 mb-2">Total Managers</h2>
-            <p className="text-3xl text-center text-green-600">{allData.managers.length}</p>
-          </div>
-
-          <div className="bg-white p-5 rounded-lg shadow-md border">
-            <h2 className="text-xl font-semibold text-blue-700 mb-2">Total Restaurants</h2>
-            <p className="text-3xl text-center text-green-600">{allData.restaurants.length}</p>
-          </div>
-
+          <SummaryCard title="Total Users" count={allData.users.length} />
+          <SummaryCard title="Total Managers" count={allData.managers.length} />
+          <SummaryCard title="Total Restaurants" count={allData.restaurants.length} />
         </div>
 
         {/* USERS LIST */}
-        <div className="bg-white/80 p-6 rounded-lg shadow-md mb-10">
-          <h2 className="text-2xl font-semibold text-blue-700 mb-5">All Users</h2>
-          {allData.users.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-left border-collapse">
-                <thead>
-                  <tr>
-                    <th className="border p-2">Username</th>
-                    <th className="border p-2">Email</th>
-                    <th className="border p-2">Role</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {allData.users.map((user) => (
-                    <tr key={user._id}>
-                      <td className="border p-2">{user.username}</td>
-                      <td className="border p-2">{user.email}</td>
-                      <td className="border p-2">{user.role}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p>No users found.</p>
+        <DataTable
+          title="All Users"
+          data={allData.users}
+          headers={["Username", "Email", "Role", "Actions"]}
+          renderRow={(user) => (
+            <>
+              <td className="border p-2">{user.username}</td>
+              <td className="border p-2">{user.email}</td>
+              <td className="border p-2">{user.role}</td>
+              <td className="border p-2">
+                <button
+                  className="bg-red-500 text-white px-3 py-1 rounded"
+                  onClick={() => handleDeleteUser(user._id)}
+                >
+                  Delete
+                </button>
+              </td>
+            </>
           )}
-        </div>
+        />
 
         {/* RESTAURANTS LIST */}
         <div className="bg-white/80 p-6 rounded-lg shadow-md mb-10">
@@ -139,6 +141,12 @@ function AdminDashboardComplete() {
                   <p><strong>Aadhaar:</strong> {man.AdharNumber}</p>
                   <p><strong>Phone:</strong> {man.PhoneNumber}</p>
                   <p><strong>PAN:</strong> {man.PanNumber}</p>
+                  <button
+                    className="mt-3 bg-red-500 text-white px-3 py-1 rounded"
+                    onClick={() => handleDeleteManager(man._id)}
+                  >
+                    Delete Manager
+                  </button>
                 </div>
               ))}
             </div>
@@ -152,4 +160,43 @@ function AdminDashboardComplete() {
   );
 }
 
-export default AdminDashboardComplete;
+// Component for summary cards
+function SummaryCard({ title, count }) {
+  return (
+    <div className="bg-white p-5 rounded-lg shadow-md border">
+      <h2 className="text-xl font-semibold text-blue-700 mb-2">{title}</h2>
+      <p className="text-3xl text-center text-green-600">{count}</p>
+    </div>
+  );
+}
+
+// Component for reusable data table
+function DataTable({ title, data, headers, renderRow }) {
+  return (
+    <div className="bg-white/80 p-6 rounded-lg shadow-md mb-10">
+      <h2 className="text-2xl font-semibold text-blue-700 mb-5">{title}</h2>
+      {data.length > 0 ? (
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-left border-collapse">
+            <thead>
+              <tr>
+                {headers.map((header, index) => (
+                  <th key={index} className="border p-2">{header}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item) => (
+                <tr key={item._id}>{renderRow(item)}</tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p>No data found.</p>
+      )}
+    </div>
+  );
+}
+
+export default AdminDashboard;

@@ -1,69 +1,43 @@
-import UserModel from "../models/user.js";
-import ManagerDetails from "../models/manager.js";
+import User from "../models/User.js";
+import Manager from "../models/Manager.js";
+import RestaurantDetails from "../models/restaurantDetails.js";
 
-// Get users
-const GetUser = async (req, res) => {
+// Get all data
+export const GetUser = async (req, res) => {
   try {
-    const users = await UserModel.find();
-    res.json({
-      message: "Successfully fetched users",
-      status: 200,
+    const users = await User.find();
+    const managers = await Manager.find();
+    const restaurants = await RestaurantDetails.find();
+
+    res.status(200).json({
       success: true,
-      users
+      users,
+      managers,
+      restaurants
     });
-  } catch (err) {
-    res.status(500).json({
-      message: err.message,
-      success: false
-    });
-    console.log("Error fetching data: ", err.message);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// Delete user
-const deleteUser = async (req, res) => {
+// Delete Manager
+export const deleteManager = async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedUser = await UserModel.findByIdAndDelete(id);
-    if (!deletedUser) {
-      return res.status(404).json({
-        message: "User not found",
-        success: false
-      });
-    }
-    res.status(200).json({
-      message: "User deleted successfully",
-      success: true
-    });
-  } catch (err) {
-    res.status(500).json({
-      message: err.message,
-      success: false
-    });
+    await Manager.findByIdAndDelete(id);
+    res.status(200).json({ success: true, message: "Manager deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// Delete manager
-const deleteManager = async (req, res) => {
+// Delete User
+export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedManager = await ManagerDetails.findByIdAndDelete(id);
-    if (!deletedManager) {
-      return res.status(404).json({
-        message: "Manager not found",
-        success: false
-      });
-    }
-    res.status(200).json({
-      message: "Manager deleted successfully",
-      success: true
-    });
-  } catch (err) {
-    res.status(500).json({
-      message: err.message,
-      success: false
-    });
+    await User.findByIdAndDelete(id);
+    res.status(200).json({ success: true, message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
-
-export { GetUser, deleteUser, deleteManager };

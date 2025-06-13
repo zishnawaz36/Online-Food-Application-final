@@ -1,139 +1,111 @@
-import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import ManagerDetails from "../models/manager.js";
+import ManagerDetails from "../models/Manager.js";
 import RestaurantDetails from "../models/restaurantDetails.js";
-import UserModel from "../models/user.js";
+import UserModel from "../models/User.js";
 
 // Register new user
-const register = async (req, res) => {
-    try {
-        console.log("Data comming from backend check:",req.body);
-       const { username, email, password, role } = req.body;
-
-        const existingUser = await UserModel.findOne({ email });
-        if (existingUser) {
-            return res.status(401).json({ success: false, message: "User already exists" });
-        }
-
-        const hashPassword = await bcrypt.hash(password, 10);
-
-        const newUser = new UserModel({
-            username,
-            email,
-            password: hashPassword,
-            role
-        });
-
-        await newUser.save();
-        res.status(200).json({ success: true, message: "User registered successfully", newUser });
-    } catch (err) {
-        res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
+export const register = async (req, res) => {
+  try {
+    const { username, email, password, role } = req.body;
+    if (!username || !email || !password || !role) {
+      return res.status(400).json({ success: false, message: "All fields are required." });
     }
+
+    if (!(await UserModel.findOne({ email }))) {
+      const hash = await bcrypt.hash(password, 10);
+      const newUser = await UserModel.create({ username, email, password: hash, role });
+      return res.status(201).json({ success: true, message: "User registered successfully", user: newUser });
+    }
+
+    return res.status(409).json({ success: false, message: "User already exists." });
+  } catch (err) {
+    const msg = err.name === "ValidationError" ? err.message : "Internal Server Error";
+    return res.status(500).json({ success: false, message: msg });
+  }
 };
 
 // User login
-const login = async (req, res) => {
-    try {
-        const { email, password } = req.body;
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await UserModel.findOne({ email }).lean();
+    if (!user) return res.status(400).json({ success: false, message: "User not found" });
 
-        const user = await UserModel.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ message: "User does not exist", success: false });
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(401).json({ message: "Invalid credentials", success: false });
-        }
-
-       
-
-       
-    const token = jwt.sign(
-  { id: user._id, role: user.role },
-  process.env.JWT_SECRET,
-  { expiresIn: "1h" }
-);
-
-
-
-        res.status(200).json({ message: "Login successful", success: true, user, token });
-    } catch (err) {
-        res.status(500).json({ message: "Error during login", success: false, error: err.message });
+    if (!(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
     }
+
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 3600000,
+    });
+
+    delete user.password;
+    return res.status(200).json({ success: true, message: "Login successful", user, token });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Login failed" });
+  }
 };
 
-// User logout
-const logout = async (req, res) => {
-    try {
-        res.clearCookie("token");
-        return res.status(200).json({ message: "Logout successfully", success: true });
-    } catch (err) {
-        res.status(500).json({ message: "Error during logout", success: false, error: err.message });
-    }
+// Logout user
+export const logout = (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  return res.status(200).json({ success: true, message: "Logged out successfully" });
 };
 
 // Create new restaurant
-const createRestaurant = async (req, res) => {
-    try {
-        const { name, address, menu, specialfor } = req.body;
-        if (!name || !address || !menu || !specialfor) {
-            return res.status(400).json({ message: "Fields are required", success: false });
-        }
-
-        const newRestaurant = await RestaurantDetails.create({
-            name,
-            address,
-            menu,
-            specialfor
-        });
-
-        res.status(201).json({ message: "Successfully created", newRestaurant });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
+export const createRestaurant = async (req, res) => {
+  const { name, address, menu, specialfor } = req.body;
+  if (!name || !address || !menu || !specialfor) {
+    return res.status(400).json({ success: false, message: "All fields are required." });
+  }
+  try {
+    const restaurant = await RestaurantDetails.create({ name, address, menu, specialfor });
+    return res.status(201).json({ success: true, message: "Restaurant created", restaurant });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
 };
 
 // Create new manager
-const createManager = async (req, res) => {
-    try {
-        const { Name, AdharNumber, PanNumber, PhoneNumber } = req.body;
-        if (!Name || !AdharNumber || !PhoneNumber || !PanNumber ) {
-            return res.status(400).json({ message: "Fields are required", success: false });
-        }
-
-        const newManager = await ManagerDetails.create({
-            Name,
-            AdharNumber,
-            PhoneNumber,
-            PanNumber
-        });
-
-        res.status(201).json({ message: "Manager successfully created", newManager });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
+export const createManager = async (req, res) => {
+  const { Name, AdharNumber, PanNumber, PhoneNumber } = req.body;
+  if (!(Name && AdharNumber && PanNumber && PhoneNumber)) {
+    return res.status(400).json({ success: false, message: "All fields are required." });
+  }
+  try {
+    const manager = await ManagerDetails.create({ Name, AdharNumber, PanNumber, PhoneNumber });
+    return res.status(201).json({ success: true, message: "Manager created", manager });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
 };
 
 // Get all restaurants
-const getRestaurants = async (req, res) => {
-    try {
-        const restaurants = await RestaurantDetails.find();
-        res.status(200).json({ message: "Restaurants fetched successfully", success: true, restaurants });
-    } catch (err) {
-        res.status(500).json({ message: err.message, success: false });
-    }
+export const getRestaurants = async (req, res) => {
+  try {
+    const restaurants = await RestaurantDetails.find();
+    return res.status(200).json({ success: true, restaurants });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
 };
 
 // Get all managers
-const getManagers = async (req, res) => {
-    try {
-        const managers = await ManagerDetails.find();
-        res.status(200).json({ message: "Managers fetched successfully", success: true, managers });
-    } catch (err) {
-        res.status(500).json({ message: err.message, success: false });
-    }
+export const getManagers = async (req, res) => {
+  try {
+    const managers = await ManagerDetails.find();
+    return res.status(200).json({ success: true, managers });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
 };
-
-export { register, login, logout, createRestaurant, createManager, getManagers, getRestaurants };

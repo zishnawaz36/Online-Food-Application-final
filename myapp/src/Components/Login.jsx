@@ -33,7 +33,7 @@ function Login() {
 
         // Role-based navigation
         if (data.user.role === "admin") {
-          navigate("/onlyadmin");
+          navigate("/adminprofile");
         } else if (data.user.role === "user") {
           navigate("/mainBody");
         } else if (data.user.role === "manager") {

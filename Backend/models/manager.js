@@ -38,8 +38,8 @@ const managerSchema = new mongoose.Schema({
         
     },
     
-});
-{timestamps:true}
+},{timestamps:true});
+
 
 // Create the model
 const ManagerDetails = mongoose.model("ManagerDetails", managerSchema);
